@@ -75,10 +75,22 @@ async function main() {
     assert.equal(await page.textContent('#empty'), 'No entries match.');
     await page.fill('#search', '');
 
-    // Arrow keys move between tabs, as on any tab list.
+    // Arrow keys move between tabs from the focused one, and the tab list is one stop in the tab order.
+    assert.equal(await page.getAttribute('button[data-tab="add"]', 'tabindex'), '-1', 'an unselected tab is out of the tab order');
     await page.focus('button[data-tab="list"]');
     await page.keyboard.press('ArrowLeft');
     assert.equal(await page.isVisible('#screen-add'), true);
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.tab), 'add');
+    await page.keyboard.press('ArrowRight');
+    assert.equal(await page.isVisible('#screen-list'), true);
+    await page.click('button[data-tab="add"]');
+
+    // A long unbroken name wraps instead of widening the page.
+    await page.fill('#name', 'x'.repeat(120));
+    await page.click('button[type="submit"]');
+    await page.click('button[data-tab="list"]');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390, 'no horizontal scroll');
+    await page.click('button[data-tab="add"]');
 
     // Every control is at least 44px in both directions.
     const small = await page.evaluate(() => [...document.querySelectorAll('button, select, input')]
@@ -97,6 +109,7 @@ async function main() {
     await shot('settings-dark');
     await page.selectOption('#theme', 'auto');
     assert.match(await page.textContent('#version'), new RegExp(app.APP_VERSION.replace(/\./g, '\\.')));
+    assert.match(await page.getAttribute('a.link', 'href'), /^mailto:/, 'a feedback link, required for a broad app');
     await page.click('#done-btn');
     assert.equal(await page.isVisible('#view-main'), true);
 
@@ -104,7 +117,7 @@ async function main() {
     server.down = true;
     await page.reload();
     await page.click('button[data-tab="list"]');
-    assert.equal(await page.locator('#entries .row').count(), 2, 'offline reload keeps the app and its data');
+    assert.equal(await page.locator('#entries .row').count(), 3, 'offline reload keeps the app and its data');
     server.down = false;
 
     // Clear asks first and removes the entries.

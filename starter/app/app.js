@@ -9,7 +9,7 @@
  */
 'use strict';
 
-var APP_VERSION = '2026.10.14.2';
+var APP_VERSION = '2026.10.14.3';
 var STORAGE = { settings: 'starter.settings', entries: 'starter.entries' };
 var THEMES = ['auto', 'light', 'dark'];
 
@@ -38,8 +38,22 @@ function formatDisplayDate(iso, locale) {
   if (!isIsoDate(iso)) return iso == null ? '' : String(iso);
   var p = iso.split('-');
   // The calendar date itself, read and written in UTC so no time zone can move it a day.
-  var d = new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2])));
+  // setUTCFullYear, because Date.UTC reads a year below 100 as 19xx.
+  var d = new Date(0);
+  d.setUTCFullYear(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
   return d.toLocaleDateString(locale, { dateStyle: 'medium', timeZone: 'UTC' });
+}
+
+/** Stored settings as the app expects them, whatever an older version or a damaged store left. */
+function readSettings(stored) {
+  var theme = stored && THEMES.indexOf(stored.theme) !== -1 ? stored.theme : 'auto';
+  return { theme: theme };
+}
+
+/** Stored entries as the app expects them: well-formed ones kept, anything else dropped. */
+function readEntries(stored) {
+  if (!Array.isArray(stored)) return [];
+  return stored.filter(function (e) { return e && typeof e.name === 'string' && isIsoDate(e.date); });
 }
 
 /** Entries whose name or date contains the query, trimmed and case-insensitive. */
@@ -85,9 +99,8 @@ if (typeof document !== 'undefined') {
     }
 
     var TABS = ['add', 'list'];
-    var settings = load(STORAGE.settings, { theme: 'auto' });
-    if (THEMES.indexOf(settings.theme) === -1) settings.theme = 'auto';
-    var entries = load(STORAGE.entries, []);
+    var settings = readSettings(load(STORAGE.settings, null));
+    var entries = readEntries(load(STORAGE.entries, null));
     var ui = { tab: 'add', query: '', settingsOpen: false, dateTouched: false };
     var toastTimer = null;
 
@@ -118,7 +131,10 @@ if (typeof document !== 'undefined') {
 
     function renderTabs() {
       document.querySelectorAll('.seg-tabs button').forEach(function (b) {
-        b.setAttribute('aria-selected', b.dataset.tab === ui.tab ? 'true' : 'false');
+        var on = b.dataset.tab === ui.tab;
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        // One stop in the tab order for the whole tab list; the arrow keys move within it.
+        b.tabIndex = on ? 0 : -1;
       });
       TABS.forEach(function (t) { $('screen-' + t).classList.toggle('hidden', t !== ui.tab); });
     }
@@ -170,7 +186,8 @@ if (typeof document !== 'undefined') {
     });
     seg.addEventListener('keydown', function (e) {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      var i = TABS.indexOf(ui.tab) + (e.key === 'ArrowRight' ? 1 : -1);
+      var from = e.target.closest('button[data-tab]');
+      var i = TABS.indexOf(from ? from.dataset.tab : ui.tab) + (e.key === 'ArrowRight' ? 1 : -1);
       if (i < 0 || i >= TABS.length) return;
       changeTab(TABS[i]);
       seg.querySelector('button[data-tab="' + TABS[i] + '"]').focus();
@@ -214,7 +231,8 @@ if (typeof document !== 'undefined') {
         setFieldError($(error.field), error.message);
         return;
       }
-      var next = [{ name: name, date: date }].concat(entries);
+      // Read the store, not memory, so an entry another tab saved a moment ago is kept.
+      var next = [{ name: name, date: date }].concat(readEntries(load(STORAGE.entries, null)));
       if (!save(STORAGE.entries, next)) {
         // Nothing is reported as saved that was not; the typed entry stays on screen.
         toast('Could not save on this device: storage is full or blocked.');
@@ -235,8 +253,13 @@ if (typeof document !== 'undefined') {
     $('done-btn').addEventListener('click', function () { ui.settingsOpen = false; render(); });
 
     $('theme').addEventListener('change', function (e) {
-      settings.theme = e.target.value;
-      save(STORAGE.settings, settings);
+      var next = { theme: e.target.value };
+      if (!save(STORAGE.settings, next)) {
+        e.target.value = settings.theme;
+        toast('Could not save the theme on this device: storage is full or blocked.');
+        return;
+      }
+      settings = next;
       applyTheme();
     });
 
@@ -250,8 +273,8 @@ if (typeof document !== 'undefined') {
 
     // Another tab changed something: follow it.
     window.addEventListener('storage', function (e) {
-      if (e.key === STORAGE.entries) { entries = load(STORAGE.entries, []); renderList(); }
-      if (e.key === STORAGE.settings) { settings = load(STORAGE.settings, { theme: 'auto' }); applyTheme(); render(); }
+      if (e.key === STORAGE.entries) { entries = readEntries(load(STORAGE.entries, null)); renderList(); }
+      if (e.key === STORAGE.settings) { settings = readSettings(load(STORAGE.settings, null)); applyTheme(); render(); }
     });
 
     // An untouched date moves on when the app comes back on a new day.
@@ -281,6 +304,8 @@ if (typeof module !== 'undefined' && module.exports) {
     todayLocal: todayLocal,
     isIsoDate: isIsoDate,
     formatDisplayDate: formatDisplayDate,
+    readSettings: readSettings,
+    readEntries: readEntries,
     filterEntries: filterEntries,
     entryError: entryError
   };

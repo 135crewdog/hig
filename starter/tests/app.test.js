@@ -25,6 +25,7 @@ test('human dates use the device format and never move a day', () => {
   assert.equal(app.formatDisplayDate('2026-10-07', 'en-GB'), '7 Oct 2026');
   assert.equal(app.formatDisplayDate('not a date'), 'not a date');
   assert.equal(app.formatDisplayDate(null), '');
+  assert.equal(app.formatDisplayDate('0099-03-04', 'en-US'), 'Mar 4, 99', 'a year below 100 is not read as 19xx');
 });
 
 test('search matches the name or the date as shown, trimmed and case-insensitive', () => {
@@ -42,7 +43,7 @@ test('entry errors name the field and say what to do', () => {
 
 test('the app and the service worker carry the same version', () => {
   const sw = fs.readFileSync(path.join(__dirname, '..', 'app', 'sw.js'), 'utf8');
-  const m = /var VERSION = APP \+ '-([^']+)'/.exec(sw);
+  const m = /var VERSION = APP \+ '\/([^']+)'/.exec(sw);
   assert.ok(m, 'sw.js declares VERSION');
   assert.equal(m[1], app.APP_VERSION);
 });
@@ -53,4 +54,12 @@ test('the service worker precaches exactly the files that ship', () => {
   const shell = JSON.parse(/var SHELL = (\[[^\]]*\])/.exec(sw)[1].replace(/'/g, '"'));
   const files = fs.readdirSync(dir).filter((f) => f !== 'sw.js').map((f) => './' + f).sort();
   assert.deepEqual(shell.filter((f) => f !== './').sort(), files);
+});
+
+test('stored values are normalized, so a damaged store never stops the app opening', () => {
+  assert.deepEqual(app.readSettings(null), { theme: 'auto' });
+  assert.deepEqual(app.readSettings({ theme: 'sepia' }), { theme: 'auto' });
+  assert.deepEqual(app.readSettings({ theme: 'dark' }), { theme: 'dark' });
+  assert.deepEqual(app.readEntries({ name: 'x' }), []);
+  assert.deepEqual(app.readEntries([null, { name: 'Brief', date: '2026-09-01' }, { name: 3, date: '2026-09-01' }]), [{ name: 'Brief', date: '2026-09-01' }]);
 });
