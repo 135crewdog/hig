@@ -3,9 +3,9 @@
 # The smoke test is Chromium; iPhone Safari is checked by hand before a pull request is merged.
 name: Tests
 on:
-  # main is tested by the deploy (pages.yml calls this); other branches on every push.
+  # Every push, main included: pages.yml only runs for changes to app/, so a change to the tests
+  # or workflows on main is tested here.
   push:
-    branches-ignore: [main]
   pull_request:
   workflow_call:
 permissions:
