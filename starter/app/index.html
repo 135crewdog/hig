@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starter</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-title" content="Starter">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <div id="view-main">
+    <header class="header">
+      <h1 class="title">Starter</h1>
+      <button type="button" id="settings-btn" class="icon-btn" aria-label="Settings">&#9881;&#65039;</button>
+    </header>
+    <div class="seg-wrap">
+      <div class="seg-tabs" role="tablist" aria-label="Screens">
+        <button type="button" role="tab" data-tab="add" aria-controls="screen-add">Add</button>
+        <button type="button" role="tab" data-tab="list" aria-controls="screen-list">List</button>
+      </div>
+    </div>
+    <div id="panels">
+
+      <section id="screen-add" class="panel" role="tabpanel" aria-label="Add">
+        <form id="add-form" novalidate>
+          <div class="section">
+            <div class="section-title">Entry</div>
+            <div class="card">
+              <div class="input-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" autocomplete="off" autocapitalize="sentences" aria-describedby="name-error">
+                <div id="name-error" class="field-error" role="alert"></div>
+              </div>
+              <div class="input-group last">
+                <label for="date">Date</label>
+                <input type="date" id="date" aria-describedby="date-error">
+                <div id="date-error" class="field-error" role="alert"></div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn primary">Save</button>
+        </form>
+      </section>
+
+      <section id="screen-list" class="panel hidden" role="tabpanel" aria-label="List">
+        <input type="search" id="search" class="search" placeholder="Search" aria-label="Search entries" autocomplete="off" spellcheck="false">
+        <ul id="entries" class="card list"></ul>
+        <p id="empty" class="empty hidden"></p>
+      </section>
+
+    </div>
+  </div>
+
+  <div id="screen-settings" class="hidden">
+    <header class="header">
+      <span class="header-spacer"></span>
+      <h1 class="title small">Settings</h1>
+      <button type="button" id="done-btn" class="text-btn">Done</button>
+    </header>
+    <div class="panel">
+      <div class="section">
+        <div class="section-title">Appearance</div>
+        <div class="card">
+          <div class="setting-row last">
+            <label for="theme">Theme</label>
+            <select id="theme">
+              <option value="auto">Auto</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Data</div>
+        <div class="card">
+          <button type="button" id="clear-btn" class="btn outline-destructive">Clear local data</button>
+          <p class="hint">Removes every entry from this device.</p>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Help</div>
+        <div class="card list">
+          <a class="link" href="mailto:135crewdog.github@gmail.com?subject=Starter%20feedback">Send feedback</a>
+        </div>
+      </div>
+      <p class="disclaimer">Starter is an unofficial tool, provided as is. Check anything that matters against an official source.</p>
+      <p class="version" id="version"></p>
+    </div>
+  </div>
+
+</div>
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
