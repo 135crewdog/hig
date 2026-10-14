@@ -137,7 +137,8 @@ async function main() {
     // Auto follows a dark device in CSS alone, so the first paint is already dark.
     await page.emulateMedia({ colorScheme: 'dark' });
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(0, 0, 0)');
-    assert.equal(await page.getAttribute('meta[name="theme-color"]', 'content'), '#1c1c1e');
+    // theme-color follows once the browser's change event reaches app.js, a moment later.
+    await page.waitForFunction(() => document.querySelector('meta[name="theme-color"]').content === '#1c1c1e');
     await page.emulateMedia({ colorScheme: 'light' });
 
     // The page opens offline from the worker's cache, entries included.
