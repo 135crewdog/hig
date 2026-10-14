@@ -12,7 +12,8 @@ permissions:
   id-token: write
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # A deploy that has started finishes; a newer push waits its turn.
+  cancel-in-progress: false
 jobs:
   # A deploy waits for the unit tests and the browser smoke test to pass.
   test:
