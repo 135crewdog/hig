@@ -55,7 +55,7 @@
     <li><b>Offline first.</b> The app opens and works with no connection, and nothing typed is lost to a bad signal.</li>
   </ol>
   <details><summary>More</summary>
-    <p>Defaults come first because they are the work someone else maintains. The browser's date picker, zoom, scrolling and dark mode get better every year at no cost; a custom version only gets older. Apple says it too: "Simplicity isn't minimalism. Include just what's necessary and let the rest fall away."</p>
+    <p>Defaults come first because they are the work someone else maintains. The browser's date picker, zoom, scrolling and dark mode get better every year at no cost; a custom version only gets older. <a href="https://developer.apple.com/design/human-interface-guidelines/design-principles">Apple says it too</a>: include just what's necessary; simplicity isn't minimalism.</p>
     <p>Apple's eight principles, in one line each:</p>
     <ul>
       <li><b>Purpose:</b> make something meaningful.</li>
@@ -86,8 +86,8 @@
       <tr><td>Layout</td><td>720px reading column</td><td>Sized to the device, such as 430px</td></tr>
       <tr><td>Motion</td><td>Instant tab switch</td><td>A slide is fine</td></tr>
       <tr><td>Platform features</td><td>Check first, with a fallback</td><td>Use what the device does well</td></tr>
-      <tr><td>Help</td><td>A guide page in plain words, every term defined</td><td>A README; the group's own jargon is fine</td></tr>
-      <tr><td>Checked on</td><td>An iPhone, an Android phone and a desktop browser</td><td>The named device</td></tr>
+      <tr><td>Help</td><td>A guide page in plain words, every term defined, before the app is shared</td><td>A README; the group's own jargon is fine</td></tr>
+      <tr><td>Checked on</td><td>An iPhone, an Android phone and a desktop browser, before each pull request is merged</td><td>The named device, before each pull request is merged</td></tr>
       <tr><td>Disclaimer and feedback link</td><td>Required</td><td>Optional</td></tr>
     </tbody>
   </table></div>
@@ -102,7 +102,7 @@
   <h2>Foundations</h2>
 
   <h3>Color</h3>
-  <p>Colors are CSS variables on <code>:root</code>, with one dark block that overrides them. The values are Apple's iOS system colors. The starter's <code>style.css</code> holds the full list.</p>
+  <p>Colors are CSS variables on <code>:root</code>, with dark values that override them. The grays, blue and red are Apple's iOS system colors; see More for the exceptions. The starter's <code>style.css</code> holds the full list.</p>
   <div class="table"><table>
     <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Use</th></tr></thead>
     <tbody>
@@ -122,7 +122,8 @@
     <li><b>Never one color for two meanings,</b> and never color alone: pair it with a word, as in an <code>OVERDUE</code> badge.</li>
   </ul>
   <details><summary>More</summary>
-    <p><b>Secondary text is #656569 in light mode, not Apple's #8e8e93.</b> Apple's gray fails the 4.5:1 minimum for regular text on white. The accent and destructive colors stay Apple's: they are used on bold labels and buttons, where 3:1 applies (white on #007aff is 4.0:1, #ff3b30 on white 3.6:1). Regular-weight text never uses them. Apollo darkened it after an audit; readability wins over matching.</p>
+    <p><b>Secondary text is #656569 in light mode, not Apple's #8e8e93,</b> and error text is #b3261e. Apple's gray fails the 4.5:1 minimum for regular text on white; Apollo darkened both after an audit, because readability wins over matching.</p>
+    <p><b>The accent and destructive colors are #007aff and #ff3b30,</b> iOS blue and red as Apple published them until 2025 and as both apps use them. Apple now lists #0088ff and #ff383c and says its documented values change between releases, so these stay on purpose. They are used only on bold labels and buttons, where 3:1 applies (white on #007aff is 4.0:1, #ff3b30 on white about 3.5:1). Regular-weight text never uses them, and regular text on <code>--fill</code> uses <code>--text</code>, because <code>--text2</code> on <code>--fill</code> is only 3.2:1 in dark.</p>
     <p>Apollo's accent is red #e06666 with dark text, drawn from its due-date colors. Banners use their own warning and error tokens (amber for caution, red for warning, the aviation convention). Apple publishes no values for its label and separator colors, so these come from Show Time and Apollo.</p>
   </details>
 
@@ -130,7 +131,8 @@
   <p>Every app has <b>Light, Dark and Auto</b> in Settings. <b>Auto is the default and follows the device's setting</b>, including a change while the app is open.</p>
   <details><summary>More</summary>
     <p>Apple advises against an in-app appearance setting. It stays on purpose: someone may want dark in a cockpit while the phone stays light.</p>
-    <p><b>How:</b> a <code>data-theme</code> attribute on <code>&lt;html&gt;</code> and a <code>system-dark</code> class kept in step with <code>prefers-color-scheme</code>, so one dark block in the CSS serves both Dark and Auto at night. After each change <code>&lt;meta name="theme-color"&gt;</code> takes the header's color, so the status bar matches. <code>color-scheme</code> is set with the tokens, so native controls match too. Stored values are <code>light</code>, <code>dark</code>, <code>auto</code>.</p>
+    <p><b>How:</b> a <code>data-theme</code> attribute on <code>&lt;html&gt;</code> picks Light or Dark, and Auto is plain CSS: the dark values sit under <code>:root[data-theme="dark"]</code> and again under <code>@media (prefers-color-scheme: dark)</code> for <code>:root:not([data-theme="light"])</code>. The repetition is the price of the first paint matching the device before any script runs. <code>color-scheme</code> is set with the values, so native controls match too. Stored values are <code>light</code>, <code>dark</code>, <code>auto</code>.</p>
+    <p><b>The status bar is the browser's.</b> After each change <code>&lt;meta name="theme-color"&gt;</code> takes the header's color for the browsers that read it (Chrome, Android). Safari on iPhone ignores it and colors its bars from the page background, so there the status bar is <code>--bg</code>. That is the default and it is accepted: forcing it would take a background on <code>html</code> sized to the screen, which the layout rules forbid.</p>
     <p><b>No system setting?</b> Every current browser reports one. If an app ever targets one that doesn't, consider having Auto follow sunrise and sunset instead.</p>
   </details>
 
@@ -165,7 +167,7 @@
   <h3>Accessibility</h3>
   <ul>
     <li><b>Every tap target is at least 44 by 44px.</b> A control may look smaller; its tap area may not be.</li>
-    <li><b>Text contrast follows Apple's table</b> in both themes: 4.5:1 for regular text up to 17px, 3:1 for text 18px and up or bold (600 and heavier).</li>
+    <li><b>Text contrast follows Apple's table</b> in both themes: 4.5:1 for regular text up to 17px, 3:1 for text 18px and up or bold. Apple doesn't say which weight is bold; this page counts 600 and heavier.</li>
     <li><b>Zoom:</b> broad apps leave it to the browser. A focused app may disable it when that serves the use case.</li>
     <li><b>Motion</b> stops when the device asks for reduced motion.</li>
   </ul>
@@ -181,18 +183,18 @@
     <li><b>Dates a machine reads</b> are <code>YYYY-MM-DD</code>, everywhere.</li>
   </ul>
   <details><summary>More</summary>
-    <p>Format with <code>toLocaleDateString(undefined, { dateStyle: 'medium', timeZone: 'UTC' })</code> on a date built with <code>Date.UTC</code>, so no time zone moves it a day. An app whose users share a convention may use it instead and say so: Apollo shows <code>07-Oct-26</code> and runs every date on Zulu, where "today" is <code>new Date().toISOString().slice(0, 10)</code>.</p>
+    <p>Format with <code>toLocaleDateString(undefined, { dateStyle: 'medium', timeZone: 'UTC' })</code> on a <code>new Date(0)</code> set with <code>setUTCFullYear(y, m - 1, d)</code>, so no time zone moves it a day (not <code>Date.UTC</code>, which reads a year below 100 as 19xx). An app whose users share a convention may use it instead and say so: Apollo shows <code>07-Oct-26</code> and runs every date on Zulu, where "today" is <code>new Date().toISOString().slice(0, 10)</code>.</p>
   </details>
 
   <h3>Writing</h3>
   <ul>
     <li><b>Sentence case everywhere.</b> Section titles are written that way and uppercased by CSS.</li>
-    <li><b>Buttons start with a verb:</b> "Save 2 rows", "Sync now".</li>
+    <li><b>Buttons start with a verb:</b> "Save 2 rows", "Sync now". Tab labels are nouns, as Apple asks: "Entry", "Status".</li>
     <li><b>Errors say what to do:</b> "Enter the mission number." Not "Invalid mission number."</li>
     <li><b>Short.</b> If a sentence can lose a word, it does.</li>
   </ul>
   <details><summary>More</summary>
-    <p>Proper nouns keep their capitals (Zulu, Task ID). A status flag may be capitals on purpose (<code>OVERDUE</code>). "Cancel" is always "Cancel"; never "Yes" and "No"; no "OK" where a verb fits. Errors end with a period and give the next step: "No connection. Rows are saved on this device and will sync later." No "oops", no blame, no "we". Count correctly: "1 row", "2 rows". Use "tap" only in an app made for phones; otherwise "choose".</p>
+    <p>Proper nouns keep their capitals (Zulu, Task ID). A status flag may be capitals on purpose (<code>OVERDUE</code>). "Cancel" is always "Cancel"; never "Yes" and "No"; no "OK" where a verb fits (the browser's <code>confirm()</code> is the exception; see Components). Errors end with a period and give the next step: "No connection. Rows are saved on this device and will sync later." No "oops", no blame, no "we". Count correctly: "1 row", "2 rows". Use "tap" only in an app made for phones; otherwise "choose".</p>
   </details>
 
   <h3>Icons</h3>
@@ -204,23 +206,24 @@
 
 <section id="components">
   <h2>Components</h2>
-  <p>Every one is in the starter. <b>Native first:</b> the browser's own date picker, select, search field and confirm dialog come before anything custom.</p>
+  <p>Every one is styled in the starter's <code>style.css</code>; its screens show all but the toggle group, stepper, secondary button and badge, which wait there for the first app that needs them. <b>Native first:</b> the browser's own date picker, select menu, search field and confirm dialog come before anything custom.</p>
   <div class="table"><table>
     <thead><tr><th>Component</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Header</td><td>The 34px title on the left; a round 44px settings gear on the right.</td></tr>
-      <tr><td>Settings</td><td>Its own screen. Centered "Settings" title, <b>Done on the right</b>.</td></tr>
+      <tr><td>Settings</td><td>Its own screen. Centered "Settings" title, <b>Done on the right</b>, and no Cancel.</td></tr>
       <tr><td>Segmented control</td><td>Under the header, up to four equal tabs, at least 44px tall. A horizontal swipe does the same.</td></tr>
       <tr><td>Section and card</td><td>A 13px uppercase gray title over a white card with a 10px radius.</td></tr>
       <tr><td>List row</td><td>The name over a gray second line; trailing badge or stepper; at least 44px tall.</td></tr>
       <tr><td>Input</td><td>17px on a gray fill, label above, error inline beneath.</td></tr>
-      <tr><td>Date</td><td>The native <code>&lt;input type="date"&gt;</code>, as it comes.</td></tr>
+      <tr><td>Date</td><td><code>&lt;input type="date"&gt;</code> drawn like a text field; tapping it opens the native picker.</td></tr>
       <tr><td>Button</td><td>Full width, 12px radius. Primary (accent), secondary (gray), destructive (red outline).</td></tr>
       <tr><td>Toggle group</td><td>Two to four choices in a row; the selected one in the accent.</td></tr>
       <tr><td>Stepper</td><td>− count + with 44px buttons; the row turns accent when its count isn't zero.</td></tr>
       <tr><td>Search</td><td>Above the list it filters; filters as you type.</td></tr>
       <tr><td>Badge</td><td>A small 13px pill; gray, or a status color with a word.</td></tr>
       <tr><td>Banner</td><td>A problem with this screen; stays until it is fixed.</td></tr>
+      <tr><td>Select</td><td>Drawn like a text field with a chevron, 44px tall; tapping it opens the native menu.</td></tr>
       <tr><td>Toast</td><td>One line confirming something worked; gone in 2.5 seconds.</td></tr>
       <tr><td>Empty state</td><td>Centered gray italic, saying what to do next.</td></tr>
       <tr><td>Confirm</td><td>The browser's <code>confirm()</code>, only before destroying data.</td></tr>
@@ -229,10 +232,10 @@
   </table></div>
   <details><summary>More</summary>
     <p><b>Header:</b> <code>--elev</code> with a bottom border; the gear is ⚙ on <code>--fill</code> with <code>aria-label="Settings"</code>. <b>Settings:</b> Done is 17px, 600 weight, in the accent, on the trailing side as Apple places it; a spacer balances the left.</p>
-    <p><b>Segmented control:</b> track <code>--fill</code>, 13px labels, the selected one <code>--elev</code> and 600 weight with a small shadow. It scrolls the page to the top. The swipe counts only when horizontal movement dominates (vertical at most 0.75 of horizontal) and passes 50px. Broad apps switch instantly; focused apps may slide.</p>
-    <p><b>Input:</b> 17px because Safari zooms the page into any field under 16px. Set <code>inputmode</code>, <code>autocomplete</code>, <code>autocapitalize</code> and <code>spellcheck</code> to suit the field; mark an error with <code>aria-invalid</code> and a red border. Only buttons and text fields drop the native look (<code>appearance: none</code>); date pickers, selects and checkboxes keep theirs.</p>
-    <p><b>Button:</b> padding 16px, 17px 600 weight, disabled at half opacity. A slow action changes its label ("Syncing…") and is disabled until done. At most one or two accent buttons on a screen. <b>Stepper:</b> the count is 17px bold with tabular numbers, gray at zero, with labels "Add one ⟨name⟩" and "Remove one ⟨name⟩".</p>
-    <p><b>Toast:</b> fixed at the bottom center, inverted colors, <code>role="status"</code>. Never for an error that needs action. <b>Confirm:</b> its text says what will and won't be touched. <code>alert()</code> is never used.</p>
+    <p><b>Segmented control:</b> track <code>--fill</code>, 13px labels in <code>--text</code>, the selected one <code>--elev</code> and 600 weight with a small shadow. It scrolls the page to the top. The swipe counts only when horizontal movement dominates (vertical at most 0.75 of horizontal) and passes 50px. A touch that starts in a field is never a swipe, so moving a cursor can't change the screen. Broad apps switch instantly; focused apps may slide.</p>
+    <p><b>Input:</b> 17px because Safari zooms the page into any field under 16px. Set <code>inputmode</code>, <code>autocomplete</code>, <code>autocapitalize</code> and <code>spellcheck</code> to suit the field; mark an error with <code>aria-invalid</code> and a red border. Buttons, text fields, the date field and selects drop the native look (<code>appearance: none</code>) so every control shares the app's shapes; the pickers, menus and keyboards they open stay native, and only checkboxes keep the browser's drawing. On iPhone a natively drawn date field is sized by Safari, which widens it past <code>width: 100%</code>, and its value is centered, so <code>::-webkit-date-and-time-value { text-align: start }</code> lines it up. <b>Select:</b> the input's fill, border and 10px corners, a chevron (a background image per theme) so it still reads as a menu, and <code>height: 44px</code> rather than <code>min-height</code>, which Safari on iPhone replaces with its own 30px when it draws the select.</p>
+    <p><b>Button:</b> padding 16px, 17px 600 weight, disabled at half opacity. A slow action changes its label ("Syncing…") and is disabled until done. At most one or two accent buttons on a screen. <b>Stepper:</b> the count is 17px bold with tabular numbers, regular weight at zero, with labels "Add one ⟨name⟩" and "Remove one ⟨name⟩".</p>
+    <p><b>Toast:</b> fixed at the bottom center, inverted colors, <code>role="status"</code>. It stays in the page and is emptied, never hidden with <code>display: none</code>, so screen readers announce each message. Never for an error that needs action: that goes in a banner or beside the field. <b>Settings:</b> every setting applies the moment it changes, so there is nothing to cancel, and Done alone closes the screen; Apple pairs Done with Cancel on a sheet. Opening Settings moves focus to Done, and Done returns it to the gear. <b>Confirm:</b> its buttons are the browser's Cancel and OK, the one place OK stands where Apple would put a verb, because a native dialog beats a custom one. So the text is a question OK plainly answers, saying what will and won't be touched. <code>alert()</code> is never used.</p>
   </details>
 </section>
 
@@ -273,9 +276,9 @@ tests/browser/smoke.js  Playwright, drives the real page
 .github/workflows/      test.yml, pages.yml</code></pre>
     <p><b><code>app.js</code></b> has pure helpers at the top with no DOM, the page code inside <code>if (typeof document !== 'undefined')</code>, and <code>module.exports</code> at the bottom, so the tests import the code the app runs. Never copy logic into a test. If a backend computes something, the app displays it and doesn't compute it again. Plain <code>var</code>/<code>function</code> JavaScript, <code>'use strict'</code>, comments that say why.</p>
     <p><b>The head:</b> charset, viewport, <code>theme-color</code>, <code>apple-mobile-web-app-title</code>, the manifest, an SVG icon and the 192px PNG as <code>apple-touch-icon</code>. Nothing else: no <code>apple-mobile-web-app-capable</code>, no status-bar style. <b>The manifest:</b> <code>start_url</code> and <code>scope</code> both <code>./</code> (relative, for a GitHub Pages subpath), <code>display: standalone</code>, no orientation lock, <code>background_color</code> matching <code>--bg</code>, PNGs marked <code>any maskable</code>.</p>
-    <p><b>The service worker:</b> network first for every same-origin GET, with <code>fetch(req, { cache: 'no-cache' })</code>, storing each good reply. Other origins and other methods pass through untouched. Offline, the app's own address falls back to the cached app; any other page says it's offline. Caches are named <code>&lt;app&gt;/&lt;version&gt;</code>, and activation deletes only caches that start with <code>&lt;app&gt;/</code>, because every app on <code>135crewdog.github.io</code> shares one cache storage. The slash can't appear in an app name, so <code>starter/</code> never matches another app's <code>starter-kit/</code>. The precache list matches the shipped files exactly, because one missing file fails the whole install.</p>
-    <p><b>Versions</b> are dates: <code>YYYY.MM.DD.N</code>, in <code>APP_VERSION</code> in <code>app.js</code> and <code>VERSION</code> in <code>sw.js</code>. A unit test fails if they differ. <b>Storage:</b> <code>localStorage</code> with keys <code>&lt;app&gt;.settings</code>, <code>&lt;app&gt;.data</code>; every read has a fallback, every write reports success. It is plain text, so tokens stay low-value and are never committed.</p>
-    <p><b>Tests:</b> spec tables are copied into tests word for word, and an expected value is never changed to make a test pass. Tests never depend on today's date; they fix the clock or derive the answer from the rules. The browser test runs at 390 by 844, fails on any page error, checks every tap target, and saves screenshots when given a folder. Playwright is installed in CI with <code>--no-save</code> and never committed.</p>
+    <p><b>The service worker:</b> network first for every same-origin GET, with <code>fetch(req, { cache: 'no-cache' })</code>, storing each good reply; the install precaches with the same <code>no-cache</code> requests, so it never saves a copy left from before the deploy. Other origins and other methods pass through untouched. Offline, the app's own address falls back to the cached app; any other page says it's offline. Caches are named <code>&lt;app&gt;/&lt;version&gt;</code>, and activation deletes only caches that start with <code>&lt;app&gt;/</code>, because every app on <code>135crewdog.github.io</code> shares one cache storage. The slash can't appear in an app name, so <code>starter/</code> never matches another app's <code>starter-kit/</code>. The precache list matches the shipped files exactly, because one missing file fails the whole install.</p>
+    <p><b>Versions</b> are dates: <code>YYYY.MM.DD.N</code>, in <code>APP_VERSION</code> in <code>app.js</code> and <code>VERSION</code> in <code>sw.js</code>. A unit test fails if they differ. <b>Storage:</b> <code>localStorage</code>, with keys prefixed by the app's name: <code>&lt;app&gt;.settings</code>, then one key per kind of data, named for what it holds (the starter's <code>starter.entries</code>; Apollo's <code>apollo.data</code>, <code>apollo.queue</code>, <code>apollo.lock</code>); every read has a fallback, every write reports success. It is plain text, so tokens stay low-value and are never committed.</p>
+    <p><b>Tests:</b> spec tables are copied into tests word for word, and an expected value is never changed to make a test pass. Tests never depend on today's date; they fix the clock or derive the answer from the rules. The browser test runs at 390 by 844, fails on any page error, checks every tap target on every screen, and saves screenshots when given a folder. It runs in Chromium, which draws native controls its own way, so it can't see how Safari on iPhone sizes a select or a date field, colors the status bar or shows the date picker: those are checked on the phone. Playwright is installed in CI with <code>--no-save</code> and never committed.</p>
   </details>
 </section>
 
@@ -285,6 +288,7 @@ tests/browser/smoke.js  Playwright, drives the real page
     <li><b><code>CLAUDE.md</code> is the spec.</b> Code that disagrees with it is wrong.</li>
     <li><b>Propose before building.</b> Agree the solution, then build it.</li>
     <li><b>A pull request waits for review.</b> It is never merged unasked.</li>
+    <li><b>A pull request says what it was checked on.</b> Native controls, the status bar and the date picker can only be judged on the device, so the devices in the "Checked on" row are opened before merging.</li>
     <li><b>Ask before adding anything not in the spec.</b> Ideas not adopted go under "Parked".</li>
   </ul>
   <details><summary>More</summary>
@@ -298,25 +302,29 @@ tests/browser/smoke.js  Playwright, drives the real page
   <div class="table"><table>
     <thead><tr><th>Rule</th><th>Learned from</th></tr></thead>
     <tbody>
-      <tr><td>No app shell</td><td>Apollo: on an installed iPhone copy, <code>100vh</code> came up short and showed a band of page under the app.</td></tr>
+      <tr><td>No app shell</td><td>Apollo: on an installed iPhone copy, a screen-height unit (<code>100dvh</code> over <code>100vh</code>) came up short and showed a band of page under the app.</td></tr>
       <tr><td>Network first for every file</td><td>Apollo: cached scripts paired a new page with an old script, so the search field did nothing.</td></tr>
-      <tr><td>Delete only your own caches</td><td>Show Time's worker deleted every other cache on the shared origin, Apollo's included.</td></tr>
+      <tr><td>Delete only your own caches</td><td>Apollo's audit: Apollo's worker deleted every cache on the shared origin, Show Time's included. Show Time's worker does the same and still needs the fix.</td></tr>
       <tr><td>Precache exactly what ships</td><td>Show Time: deleted icons still on the list stopped the new worker installing.</td></tr>
-      <tr><td>Relative manifest paths</td><td>Show Time: an absolute <code>start_url</code> opened a 404 from the Home Screen.</td></tr>
+      <tr><td>Relative manifest paths</td><td>Show Time: <code>start_url: "/"</code> opened the bare origin, a 404, from the Home Screen. The app's own path fixed it; <code>./</code> later let it survive a move.</td></tr>
       <tr><td>Bump the version every time, and test it</td><td>Show Time: a stale cache name meant nobody got updates; version strings drifted across three files.</td></tr>
       <tr><td><code>text-size-adjust: 100%</code></td><td>Apollo: Safari enlarged some text in landscape and left the badges small.</td></tr>
       <tr><td>Inputs at 17px</td><td>Safari zooms the page into any field under 16px.</td></tr>
       <tr><td>Use the defaults</td><td>Apollo: three pull requests chased a search clear button that Safari never draws on a web page.</td></tr>
-      <tr><td>Don't redo the backend's math</td><td>Apollo: the due-date bands lived in three places and drifted.</td></tr>
-      <tr><td>Tests never depend on today</td><td>Show Time: a Zulu test broke in summer when local time moved to daylight saving.</td></tr>
+      <tr><td>Don't redo the backend's math</td><td>Apollo's audit: the due-date bands lived in three places, each with its own date code.</td></tr>
+      <tr><td>Tests never depend on today</td><td>Show Time: a Zulu test broke in April, once local time moved to daylight saving.</td></tr>
       <tr><td>Tests import the real code</td><td>Show Time: the test page kept its own copy of the calculation, and it drifted.</td></tr>
       <tr><td>Deploy only after tests pass</td><td>Apollo's audit: Pages published untested code.</td></tr>
       <tr><td>Saves that can't be lost</td><td>Apollo's audit: two tabs could lose rows, a failed write said "saved", and a late reply refilled cleared data.</td></tr>
       <tr><td>Never hand-sort a script's view</td><td>Apollo: a sort racing a refresh duplicated eleven rows and lost eleven.</td></tr>
       <tr><td>No <code>alert()</code></td><td>Show Time: clipboard errors moved into a banner in the app.</td></tr>
       <tr><td>Drop what means nothing to the user</td><td>Apollo dropped group headings; Show Time added day-offset labels and removed them, twice.</td></tr>
-      <tr><td>Copy in the format the destination shows</td><td>Show Time: Mattermost shows Markdown tables, not HTML.</td></tr>
+      <tr><td>Copy in the format the destination shows</td><td>Show Time: P1 ChatOps shows Markdown tables, not HTML.</td></tr>
       <tr><td>Darker secondary gray</td><td>Apollo's audit: Apple's #8e8e93 fails 4.5:1 on white.</td></tr>
+      <tr><td>Draw the date field like a text field</td><td>Starter: on iPhone the natively drawn date field ran past its card and centered its value.</td></tr>
+      <tr><td>A select's height, not its min-height</td><td>Starter: the natively drawn Theme select had <code>min-height: 44px</code> and came up 30px tall on iPhone, with corners unlike the rest of the app.</td></tr>
+      <tr><td>The status bar is the browser's</td><td>Starter: the HIG said the status bar matched the header; on iPhone it was the page's gray.</td></tr>
+      <tr><td>Check on the device before merging</td><td>Starter: those three passed the Chromium test and were found on the first look at an iPhone, after the merge.</td></tr>
       <tr><td>Remove a workaround when its cause is gone</td><td>Apollo: a "self-heal" script outlived the bug it fixed.</td></tr>
     </tbody>
   </table></div>

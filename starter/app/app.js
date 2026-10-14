@@ -9,7 +9,7 @@
  */
 'use strict';
 
-var APP_VERSION = '2026.10.14.3';
+var APP_VERSION = '2026.10.14.5';
 var STORAGE = { settings: 'starter.settings', entries: 'starter.entries' };
 var THEMES = ['auto', 'light', 'dark'];
 
@@ -111,11 +111,12 @@ if (typeof document !== 'undefined') {
     function applyTheme() {
       var root = document.documentElement;
       root.setAttribute('data-theme', settings.theme);
-      root.classList.toggle('system-dark', !!(darkQuery && darkQuery.matches));
-      // The status bar matches the header.
+      // Browsers that read theme-color tint their bars with the header color. Safari on iPhone
+      // ignores it and uses the page background, which is the browser's default and accepted.
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', getComputedStyle(root).getPropertyValue('--elev').trim() || '#ffffff');
     }
+    // The CSS follows the device on its own; this keeps theme-color in step.
     if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener('change', applyTheme);
 
     // ---- rendering ----
@@ -152,16 +153,16 @@ if (typeof document !== 'undefined') {
         list.appendChild(row);
       });
       list.classList.toggle('hidden', shown.length === 0);
-      $('empty').textContent = entries.length ? 'No entries match.' : 'No entries yet. Add one on the Add screen.';
+      $('empty').textContent = entries.length ? 'No entries match.' : 'No entries yet. Add one on the Entry screen.';
       $('empty').classList.toggle('hidden', shown.length > 0);
     }
 
+    /** A one-line confirmation. The element is never hidden, only emptied, so screen readers announce each message. */
     function toast(text) {
       var t = $('toast');
       t.textContent = text;
-      t.classList.remove('hidden');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () { t.classList.add('hidden'); }, 2500);
+      toastTimer = setTimeout(function () { t.textContent = ''; }, 2500);
     }
 
     function changeTab(name) {
@@ -198,6 +199,8 @@ if (typeof document !== 'undefined') {
     var panels = $('panels');
     panels.addEventListener('touchstart', function (e) {
       touch.ex = touch.ey = null;
+      // Dragging inside a field moves its cursor or scrolls its text; it is never a swipe.
+      if (e.target.closest('input, select, textarea')) { touch.x = null; return; }
       touch.x = e.targetTouches[0].clientX;
       touch.y = e.targetTouches[0].clientY;
     }, { passive: true });
@@ -234,10 +237,11 @@ if (typeof document !== 'undefined') {
       // Read the store, not memory, so an entry another tab saved a moment ago is kept.
       var next = [{ name: name, date: date }].concat(readEntries(load(STORAGE.entries, null)));
       if (!save(STORAGE.entries, next)) {
-        // Nothing is reported as saved that was not; the typed entry stays on screen.
-        toast('Could not save on this device: storage is full or blocked.');
+        // Nothing is reported as saved that was not; the typed entry stays on screen with the reason.
+        $('add-error').textContent = 'Could not save on this device: storage is full or blocked. Your entry is still here; try again.';
         return;
       }
+      $('add-error').textContent = '';
       entries = next;
       $('name').value = '';
       render();
@@ -249,16 +253,18 @@ if (typeof document !== 'undefined') {
       renderList();
     });
 
-    $('settings-btn').addEventListener('click', function () { ui.settingsOpen = true; render(); window.scrollTo(0, 0); });
-    $('done-btn').addEventListener('click', function () { ui.settingsOpen = false; render(); });
+    // Focus moves with the screen, so a keyboard or VoiceOver user lands where they can act.
+    $('settings-btn').addEventListener('click', function () { ui.settingsOpen = true; render(); window.scrollTo(0, 0); $('done-btn').focus(); });
+    $('done-btn').addEventListener('click', function () { ui.settingsOpen = false; render(); $('settings-btn').focus(); });
 
     $('theme').addEventListener('change', function (e) {
       var next = { theme: e.target.value };
       if (!save(STORAGE.settings, next)) {
         e.target.value = settings.theme;
-        toast('Could not save the theme on this device: storage is full or blocked.');
+        setFieldError(e.target, 'Could not save the theme on this device: storage is full or blocked.');
         return;
       }
+      setFieldError(e.target, '');
       settings = next;
       applyTheme();
     });

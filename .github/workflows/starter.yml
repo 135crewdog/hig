@@ -1,10 +1,15 @@
 # Keeps the starter honest: its unit tests and browser smoke test run on every push and pull
 # request, and as the gate in front of the Pages deploy (pages.yml calls this workflow).
+# The smoke test is Chromium; iPhone Safari is checked by hand before a pull request is merged.
 name: Starter tests
 on:
+  # main is tested by the deploy (pages.yml calls this); other branches on every push.
   push:
+    branches-ignore: [main]
   pull_request:
   workflow_call:
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest

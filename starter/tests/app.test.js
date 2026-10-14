@@ -52,7 +52,7 @@ test('the service worker precaches exactly the files that ship', () => {
   const dir = path.join(__dirname, '..', 'app');
   const sw = fs.readFileSync(path.join(dir, 'sw.js'), 'utf8');
   const shell = JSON.parse(/var SHELL = (\[[^\]]*\])/.exec(sw)[1].replace(/'/g, '"'));
-  const files = fs.readdirSync(dir).filter((f) => f !== 'sw.js').map((f) => './' + f).sort();
+  const files = fs.readdirSync(dir).filter((f) => f !== 'sw.js' && !f.startsWith('.')).map((f) => './' + f).sort();
   assert.deepEqual(shell.filter((f) => f !== './').sort(), files);
 });
 

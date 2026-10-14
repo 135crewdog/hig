@@ -16,7 +16,7 @@ Follows the HIG at https://135crewdog.github.io/hig/. This file wins where the t
 
 Ask the user before adding anything that is not in this file. Ideas that were discussed and not adopted are listed under "Parked" at the end; do not build them without asking.
 
-**Working rule:** propose a solution and agree it with the user before building it. A pull request waits for the user's review; never merge one unasked.
+**Working rule:** propose a solution and agree it with the user before building it. A pull request waits for the user's review; never merge one unasked. A pull request says which devices it was checked on: the smoke test is Chromium, so iPhone Safari's native controls and status bar are checked on the phone.
 
 ## Architecture
 
@@ -24,6 +24,7 @@ Ask the user before adding anything that is not in this file. Ideas that were di
 CLAUDE.md                 this file, the spec
 README.md                 for developers: tests, hosting, version bumps
 app/                      the PWA: index.html, app.js, style.css, sw.js, manifest.webmanifest, icons
+app/guide/                the setup guide, added before a Broad app is shared
 tests/app.test.js         node --test: the pure helpers in app.js
 tests/browser/smoke.js    drives the app in Chromium; needs Playwright, dev only
 .github/workflows/        test.yml runs both; pages.yml runs it, then publishes app/ to GitHub Pages from main
@@ -43,6 +44,8 @@ tests/browser/smoke.js    drives the app in Chromium; needs Playwright, dev only
 None.
 
 ## Gotchas
+
+- When iPhone Safari draws a select or date field itself, it ignores the select's `min-height` and widens the date field past `width: 100%`, and neither matches the app's shapes. The starter draws both with `appearance: none` (the select with a chevron and `height: 44px`); the menu and date picker they open stay native.
 
 <!-- Things that bit this project, so they never bite twice. -->
 
