@@ -1,0 +1,21 @@
+# Keeps the starter honest: its unit tests and browser smoke test run on every push and pull request.
+name: Starter tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: starter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test
+      # Playwright is a development tool, not a dependency: nothing is saved to the repository.
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/browser/smoke.js
