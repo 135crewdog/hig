@@ -45,7 +45,7 @@ None.
 
 ## Gotchas
 
-- iPhone Safari ignores `min-height` on a native select and widens a natively drawn date field past `width: 100%`. The starter gives the select `height: 44px` and draws the date field with `appearance: none`; the pickers stay native.
+- When iPhone Safari draws a select or date field itself, it ignores the select's `min-height` and widens the date field past `width: 100%`, and neither matches the app's shapes. The starter draws both with `appearance: none` (the select with a chevron and `height: 44px`); the menu and date picker they open stay native.
 
 <!-- Things that bit this project, so they never bite twice. -->
 

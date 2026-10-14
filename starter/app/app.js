@@ -9,7 +9,7 @@
  */
 'use strict';
 
-var APP_VERSION = '2026.10.14.4';
+var APP_VERSION = '2026.10.14.5';
 var STORAGE = { settings: 'starter.settings', entries: 'starter.entries' };
 var THEMES = ['auto', 'light', 'dark'];
 

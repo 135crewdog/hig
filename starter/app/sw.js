@@ -3,7 +3,7 @@
  * Requests to other origins (APIs) are never intercepted. */
 var APP = 'starter';
 // '/' can't appear in an app name, so no other app's caches can share this prefix.
-var VERSION = APP + '/2026.10.14.4';
+var VERSION = APP + '/2026.10.14.5';
 var SHELL = ['./', './index.html', './app.js', './style.css', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (event) {
