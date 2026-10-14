@@ -5,8 +5,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const app = require('../app/app.js');
 
-test('today is the UTC date', () => {
-  assert.equal(app.todayUtc(), new Date().toISOString().slice(0, 10));
+test('today is the date on the device clock, not UTC', () => {
+  // 23:30 local on 7 Oct is still 7 Oct, whatever UTC says.
+  assert.equal(app.todayLocal(new Date(2026, 9, 7, 23, 30)), '2026-10-07');
+  assert.equal(app.todayLocal(new Date(2026, 0, 1, 0, 5)), '2026-01-01');
 });
 
 test('isIsoDate accepts real dates only', () => {
@@ -18,16 +20,17 @@ test('isIsoDate accepts real dates only', () => {
   assert.equal(app.isIsoDate(''), false);
 });
 
-test('human dates are DD-Mmm-YY', () => {
-  assert.equal(app.formatDisplayDate('2026-10-07'), '07-Oct-26');
+test('human dates use the device format and never move a day', () => {
+  assert.equal(app.formatDisplayDate('2026-10-07', 'en-US'), 'Oct 7, 2026');
+  assert.equal(app.formatDisplayDate('2026-10-07', 'en-GB'), '7 Oct 2026');
   assert.equal(app.formatDisplayDate('not a date'), 'not a date');
   assert.equal(app.formatDisplayDate(null), '');
 });
 
-test('search matches name or shown date, trimmed and case-insensitive', () => {
+test('search matches the name or the date as shown, trimmed and case-insensitive', () => {
   const entries = [{ name: 'Landing', date: '2026-10-07' }, { name: 'Brief', date: '2026-09-01' }];
   assert.deepEqual(app.filterEntries(entries, '  LAND '), [entries[0]]);
-  assert.deepEqual(app.filterEntries(entries, 'sep'), [entries[1]]);
+  assert.deepEqual(app.filterEntries(entries, app.formatDisplayDate('2026-09-01')), [entries[1]]);
   assert.deepEqual(app.filterEntries(entries, ''), entries);
 });
 

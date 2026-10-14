@@ -2,7 +2,7 @@
  * Bump VERSION (and APP_VERSION in app.js) on every change to any file in app/, or devices keep the old copy.
  * Requests to other origins (APIs) are never intercepted. */
 var APP = 'starter';
-var VERSION = APP + '-2026.10.14.1';
+var VERSION = APP + '-2026.10.14.2';
 var SHELL = ['./', './index.html', './app.js', './style.css', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (event) {

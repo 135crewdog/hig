@@ -1,6 +1,6 @@
 # Starter
 
-A blank PWA that follows the [HIG](../HIG.md). It has two tabs (Add, List), Settings with a theme and Clear local data, a date field in Zulu, a toast, offline support and tests.
+A blank PWA that follows the [HIG](https://135crewdog.github.io/hig/), with Broad scope. It has two tabs (Add, List), Settings with a theme and Clear local data, a native date field, a toast, offline support and tests. Try it at https://135crewdog.github.io/hig/starter/.
 
 ## Start a new project from it
 
@@ -8,7 +8,7 @@ A blank PWA that follows the [HIG](../HIG.md). It has two tabs (Add, List), Sett
 2. Replace `starter` and `Starter` with the app's name in `app/index.html`, `app/manifest.webmanifest`, `app/sw.js` (`APP`), `app/app.js` (`STORAGE`) and `CLAUDE.md`. The `APP` name in `sw.js` must be unique on `135crewdog.github.io`, because it scopes cache cleanup.
 3. Draw `app/icon.svg`, then run `node render-icons.js` to make the PNGs.
 4. Set the accent: `--accent` and `--on-accent` in `app/style.css`, in both the light and the dark block.
-5. Fill in `CLAUDE.md`. Delete the Add and List screens and build the real ones.
+5. Fill in `CLAUDE.md`, starting with its scope (Broad or Focused). Delete the Add and List screens and build the real ones.
 6. In the new repository on GitHub: Settings → Pages → Source: GitHub Actions.
 
 ## Tests

@@ -3,12 +3,13 @@
  *
  * The pure helpers at the top have no DOM and are unit-tested in Node
  * (tests/app.test.js). Everything that touches the page is inside the
- * block guarded by `typeof document !== 'undefined'`. Every date is a
- * 'YYYY-MM-DD' Zulu string.
+ * block guarded by `typeof document !== 'undefined'`. Dates are stored as
+ * 'YYYY-MM-DD' strings in the device's own time zone and shown in the device's
+ * own date format.
  */
 'use strict';
 
-var APP_VERSION = '2026.10.14.1';
+var APP_VERSION = '2026.10.14.2';
 var STORAGE = { settings: 'starter.settings', entries: 'starter.entries' };
 var THEMES = ['auto', 'light', 'dark'];
 
@@ -16,9 +17,11 @@ var THEMES = ['auto', 'light', 'dark'];
 // Pure helpers
 // ---------------------------------------------------------------------------
 
-/** Today's Zulu date. Never the device's local date. */
-function todayUtc() {
-  return new Date().toISOString().slice(0, 10);
+/** Today's date on the device's clock and time zone. (An app that runs on Zulu uses toISOString().slice(0, 10).) */
+function todayLocal(now) {
+  var d = now || new Date();
+  function two(n) { return (n < 10 ? '0' : '') + n; }
+  return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
 }
 
 function isIsoDate(s) {
@@ -30,13 +33,13 @@ function isIsoDate(s) {
   return d <= [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
 }
 
-var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-/** 'YYYY-MM-DD' shown to a human as DD-Mmm-YY, e.g. '07-Oct-26'. Anything else is returned as is. */
-function formatDisplayDate(iso) {
+/** 'YYYY-MM-DD' in the device's own date format ('Oct 7, 2026' in the US). Anything else is returned as is. */
+function formatDisplayDate(iso, locale) {
   if (!isIsoDate(iso)) return iso == null ? '' : String(iso);
   var p = iso.split('-');
-  return p[2] + '-' + MONTHS[Number(p[1]) - 1] + '-' + p[0].slice(2);
+  // The calendar date itself, read and written in UTC so no time zone can move it a day.
+  var d = new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2])));
+  return d.toLocaleDateString(locale, { dateStyle: 'medium', timeZone: 'UTC' });
 }
 
 /** Entries whose name or date contains the query, trimmed and case-insensitive. */
@@ -51,7 +54,7 @@ function filterEntries(entries, query) {
 /** The field to fix and the fix, as an instruction, or null when the entry is fine. */
 function entryError(name, date) {
   if (!String(name || '').trim()) return { field: 'name', message: 'Enter a name.' };
-  if (!isIsoDate(date)) return { field: 'date', message: 'Enter the date as YYYY-MM-DD (Zulu).' };
+  if (!isIsoDate(date)) return { field: 'date', message: 'Choose a date.' };
   return null;
 }
 
@@ -109,9 +112,8 @@ if (typeof document !== 'undefined') {
       $('screen-settings').classList.toggle('hidden', !ui.settingsOpen);
       renderTabs();
       renderList();
-      $('date-display').textContent = formatDisplayDate($('date').value);
       $('theme').value = settings.theme;
-      $('version').textContent = 'Version ' + APP_VERSION + ' · All dates are Zulu';
+      $('version').textContent = 'Version ' + APP_VERSION;
     }
 
     function renderTabs() {
@@ -252,10 +254,10 @@ if (typeof document !== 'undefined') {
       if (e.key === STORAGE.settings) { settings = load(STORAGE.settings, { theme: 'auto' }); applyTheme(); render(); }
     });
 
-    // An untouched date moves on when the app comes back on a new Zulu day.
+    // An untouched date moves on when the app comes back on a new day.
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible' && !ui.dateTouched && $('date').value !== todayUtc()) {
-        $('date').value = todayUtc();
+      if (document.visibilityState === 'visible' && !ui.dateTouched && $('date').value !== todayLocal()) {
+        $('date').value = todayLocal();
         render();
       }
     });
@@ -263,7 +265,7 @@ if (typeof document !== 'undefined') {
     // ---- start ----
 
     applyTheme();
-    $('date').value = todayUtc();
+    $('date').value = todayLocal();
     render();
 
     if ('serviceWorker' in navigator) {
@@ -276,7 +278,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     APP_VERSION: APP_VERSION,
     STORAGE: STORAGE,
-    todayUtc: todayUtc,
+    todayLocal: todayLocal,
     isIsoDate: isIsoDate,
     formatDisplayDate: formatDisplayDate,
     filterEntries: filterEntries,

@@ -2,7 +2,7 @@
 /*
  * Browser smoke test. Needs Playwright with Chromium (a development tool, not an app
  * dependency): `node tests/browser/smoke.js`. Serves app/ and drives it at a phone size:
- * add an entry, a field error, search, the swipe, Settings and the theme, Clear, and an
+ * add an entry, a field error, search, tab keys, tap target sizes, Settings and the theme, Clear, and an
  * offline reload from the service worker's cache.
  * Pass a directory as the first argument to save a screenshot of each screen there.
  */
@@ -48,8 +48,8 @@ async function main() {
   try {
     await page.goto(url);
     await page.evaluate(() => navigator.serviceWorker.ready);
-    assert.equal(await page.inputValue('#date'), app.todayUtc(), 'the date defaults to the Zulu date');
-    assert.equal(await page.textContent('#date-display'), app.formatDisplayDate(app.todayUtc()));
+    // The date defaults to today on the device's clock (the browser and this test share one).
+    assert.equal(await page.inputValue('#date'), app.todayLocal(), 'the date defaults to today');
     await shot('add');
 
     // A missing name is an inline instruction, and nothing is saved.
@@ -82,7 +82,7 @@ async function main() {
 
     // Every control is at least 44px in both directions.
     const small = await page.evaluate(() => [...document.querySelectorAll('button, select, input')]
-      .filter((n) => n.offsetParent && n.type !== 'date')
+      .filter((n) => n.offsetParent)
       .map((n) => ({ id: n.id || n.textContent.trim(), r: n.getBoundingClientRect() }))
       .filter((x) => x.r.width < 44 || x.r.height < 44).map((x) => x.id));
     assert.deepEqual(small, [], 'tap targets under 44px');

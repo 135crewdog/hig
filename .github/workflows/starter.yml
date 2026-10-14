@@ -1,8 +1,10 @@
-# Keeps the starter honest: its unit tests and browser smoke test run on every push and pull request.
+# Keeps the starter honest: its unit tests and browser smoke test run on every push and pull
+# request, and as the gate in front of the Pages deploy (pages.yml calls this workflow).
 name: Starter tests
 on:
   push:
   pull_request:
+  workflow_call:
 jobs:
   test:
     runs-on: ubuntu-latest
