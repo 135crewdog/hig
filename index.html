@@ -44,12 +44,12 @@
       <p class="ex">Show Time, built for a phone in the cockpit, slides between screens. Apollo, built for any crew member's device, simply switches.</p>
       <div class="pair">
         <figure>
-          <video src="media/showtime.mp4" poster="media/showtime.jpg" autoplay muted loop playsinline width="180" height="317" aria-label="Show Time sliding from Setup to Times to Output"></video>
-          <figcaption>Show Time, focused</figcaption>
+          <video src="media/showtime.mp4" poster="media/showtime.jpg" autoplay muted playsinline width="180" height="317" aria-label="Show Time sliding from Setup to Times to Output"></video>
+          <figcaption>Show Time, focused. Tap to replay.</figcaption>
         </figure>
         <figure>
-          <video src="media/apollo.mp4" poster="media/apollo.jpg" autoplay muted loop playsinline width="180" height="317" aria-label="Apollo switching from Log to Status and back"></video>
-          <figcaption>Apollo, broad</figcaption>
+          <video src="media/apollo.mp4" poster="media/apollo.jpg" autoplay muted playsinline width="180" height="317" aria-label="Apollo switching from Log to Status and back"></video>
+          <figcaption>Apollo, broad. Tap to replay.</figcaption>
         </figure>
       </div></li>
     <li><b>Respect the person.</b> Light, Dark and Auto, with Auto following the device. Their clock, their text size, their thumb.
@@ -71,10 +71,15 @@
 
 </main>
 <script>
-  // Respect the person: with reduced motion on, the clips wait to be played.
-  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('video').forEach(function (v) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; });
-  }
+  // Each clip plays once (under five seconds) and a tap replays or pauses it.
+  // With reduced motion on, nothing plays until tapped.
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('video').forEach(function (v) {
+    if (reduce) { v.removeAttribute('autoplay'); v.pause(); }
+    v.addEventListener('click', function () {
+      if (v.paused) { if (v.ended) v.currentTime = 0; v.play(); } else { v.pause(); }
+    });
+  });
 </script>
 </body>
 </html>
