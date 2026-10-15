@@ -1,4 +1,4 @@
-# Publishes the HIG page, with the starter app at starter/, to GitHub Pages on every push to main.
+# Publishes the HIG page to GitHub Pages on every push to main.
 # One-time setup in the repo: Settings → Pages → Build and deployment → Source: GitHub Actions.
 name: Deploy to GitHub Pages
 on:
@@ -14,20 +14,14 @@ concurrency:
   # A deploy that has started finishes; a newer push waits its turn.
   cancel-in-progress: false
 jobs:
-  # A deploy waits for the starter's tests to pass.
-  test:
-    uses: ./.github/workflows/starter.yml
-    permissions:
-      contents: read
   deploy:
-    needs: test
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: mkdir -p _site && cp index.html hig.css _site/ && cp -r starter/app _site/starter
+      - run: mkdir -p _site && cp -r index.html hig.css media _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
